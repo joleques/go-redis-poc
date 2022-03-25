@@ -1,0 +1,24 @@
+version: "3"
+services:
+  redis-compose:
+    image: redis:6.2-alpine
+    container_name: redis_6.2-alpine
+    command: redis-server --appendonly yes --loglevel warning
+    hostname: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - go-redis-poc
+  redis-commander-go:
+    container_name: redis-commander-web-go
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis-compose:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - go-redis-poc
+networks:
+  go-redis-poc:
+    driver: bridge
