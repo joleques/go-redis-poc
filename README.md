@@ -1,0 +1,1 @@
+### POC para testar o Go com Redis
