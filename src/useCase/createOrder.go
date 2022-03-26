@@ -1,11 +1,13 @@
 package useCase
 
 import (
-	"fmt"
 	"github.com/joleques/go-redis-poc/src/application"
 	"github.com/joleques/go-redis-poc/src/infra/redis"
 	"strconv"
+	"sync"
 )
+
+var wg sync.WaitGroup
 
 func CreateOrder(identifier string, products []string) error {
 	order, err := application.NewOrder(identifier, products)
@@ -18,11 +20,13 @@ func CreateOrder(identifier string, products []string) error {
 		return errRedis
 	}
 
+	wg.Add(order.TotalProducts())
+
 	for i, product := range order.Products {
 		id := order.Identifier + "_" + strconv.Itoa(i)
-		fmt.Println(i, id, product)
-		redisClient.Set(id, product, 0)
+		go redisClient.Set(id, product, 0, &wg)
 	}
 
+	wg.Wait()
 	return nil
 }

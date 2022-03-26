@@ -3,6 +3,7 @@ package unit
 import (
 	"github.com/joleques/go-redis-poc/src/application"
 	"github.com/stretchr/testify/assert"
+	"strconv"
 	"testing"
 )
 
@@ -36,7 +37,12 @@ func Test_orderErrorWhenProductsNil(t *testing.T) {
 }
 
 func Test_orderErrorWhenProductsBiggerThen5(t *testing.T) {
-	order, err := application.NewOrder("test", []string{"test1", "test2", "test3", "test4", "test5", "test6"})
+	var products []string
+	for i := 0; i < 55; i++ {
+		element := "test" + strconv.Itoa(i)
+		products = append(products, element)
+	}
+	order, err := application.NewOrder("test", products)
 	assert.Nil(t, order)
-	assert.Equal(t, "error: Product list cannot be longer than 5", err.Error())
+	assert.Equal(t, "error: Product list cannot be longer than 50", err.Error())
 }

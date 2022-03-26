@@ -2,8 +2,11 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis/v8"
+	"go.elastic.co/ecszap"
+	"go.uber.org/zap"
+	"os"
+	"sync"
 	"time"
 )
 
@@ -35,10 +38,17 @@ func (client *clientRedisAdapter) connect() {
 	client.Client = rdb
 }
 
-func (client clientRedisAdapter) Set(key string, value string, expiration time.Duration) {
+func (client clientRedisAdapter) Set(key string, value string, expiration time.Duration, wg *sync.WaitGroup) {
+
+	encoderConfig := ecszap.NewDefaultEncoderConfig()
+	core := ecszap.NewCore(encoderConfig, os.Stdout, zap.DebugLevel)
+	logger := zap.New(core, zap.AddCaller())
+	logger = logger.With(zap.String("app", "go-redis")).With(zap.String("environment", "test")).With(zap.String("key", key)).With(zap.String("value", value))
+
 	err := client.Client.Set(ctx, key, value, expiration).Err()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Insert successfully")
+	logger.Info("Insert successfully")
+	wg.Done()
 }

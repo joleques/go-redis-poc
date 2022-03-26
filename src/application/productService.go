@@ -28,9 +28,13 @@ func (order order) Verify() error {
 	if len(order.Products) == 0 {
 		return errors.New("error: products empty")
 	}
-	if len(order.Products) > 5 {
-		return errors.New("error: Product list cannot be longer than 5")
+	if len(order.Products) > 50 {
+		return errors.New("error: Product list cannot be longer than 50")
 	}
 
 	return nil
+}
+
+func (order order) TotalProducts() int {
+	return len(order.Products)
 }
